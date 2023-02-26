@@ -24,10 +24,10 @@ import (
 )
 
 // Reads default config file
-func LoadGlobalConfig() error {
+func LoadGlobalConfig() (string, error) {
 	confPath, err := os.UserConfigDir()
 	if err != nil {
-		return err
+		return "", err
 	}
 	confPath = filepath.Join(confPath, "wgcli")
 
@@ -36,27 +36,27 @@ func LoadGlobalConfig() error {
 	viper.SetConfigName("conf")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return filepath.Join(confPath, "conf.yaml"), nil
 }
 
 // Merges global config with additional config file (overwrites)
-func LoadConfig(filepath, filename string) error {
+func LoadConfig(filePath, filename string) (string, error) {
 	v := viper.New()
 
-	v.AddConfigPath(filepath)
+	v.AddConfigPath(filePath)
 	v.SetConfigType("yaml")
 	v.SetConfigName(filename)
 
 	if err := v.ReadInConfig(); err != nil {
-		return err
+		return "", err
 	}
 
 	if err := viper.MergeConfigMap(v.AllSettings()); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return filepath.Join(filePath, filename), nil
 }

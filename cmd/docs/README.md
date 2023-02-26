@@ -9,9 +9,15 @@ wgcli [komanda] -h
 ```
 
 ```sh
-wgcli ... --username {username} --password {password} --saveSession
+wgcli --verbose --debug [komanda]
 
-wgcli ... -U {username} -P {password} -S
+wgcli -v -d [komanda]
+```
+
+```sh
+wgcli ... --username {username} --password {password}
+
+wgcli ... -U {username} -P {password}
 ```
 
 ```sh

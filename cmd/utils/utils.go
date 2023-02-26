@@ -44,7 +44,7 @@ func RequireCredentials(settings *config.Auth) error {
 	return nil
 }
 
-// Runs preRun functions (if they exist) of parent command (enables preRun chaining)
+// Runs PersistPreRun(E) functions (if they exist) of parent command (enables chaining)
 func PersistPreRuns(cmd *cobra.Command, args []string) error {
 	if cmd.HasParent() {
 		if cmd.Parent().PersistentPreRun != nil {

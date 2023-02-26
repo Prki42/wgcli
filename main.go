@@ -20,11 +20,9 @@ import (
 	"os"
 
 	"github.com/Prki42/wgcli/cmd"
-	"github.com/Prki42/wgcli/config"
 )
 
 func main() {
-	config.LoadGlobalConfig()
 	wgcli := cmd.NewCommand()
 	if err := wgcli.Execute(); err != nil {
 		os.Exit(1)

@@ -29,12 +29,16 @@ var cfgFile string
 
 func NewCommand() *cobra.Command {
 	wgcli := &cobra.Command{
-		Use:   "wgcli",
-		Short: "WebGrade CLI utility",
-		Long:  ``,
+		Use:              "wgcli",
+		Short:            "WebGrade CLI utility",
+		Long:             ``,
+		PersistentPreRun: persistentPreRun,
 	}
 
-	initLocalConfig()
+	config.LoadGlobalConfig()
+
+	confPath, _ := filepath.Abs("./")
+	config.LoadConfig(confPath, ".wgcli.yaml")
 
 	createCommandTree(wgcli)
 
@@ -51,7 +55,12 @@ func createCommandTree(cmd *cobra.Command) {
 	viper.BindPFlag("auth.password", cmd.PersistentFlags().Lookup("password"))
 }
 
-func initLocalConfig() {
-	confPath, _ := filepath.Abs("./")
-	config.LoadConfig(confPath, ".wgcli.yaml")
+func persistentPreRun(cnd *cobra.Command, args []string) {
+	if cfgFile == "" {
+		return
+	}
+	confPath, _ := filepath.Abs(cfgFile)
+	fileName := filepath.Base(confPath)
+	dirPath := filepath.Dir(confPath)
+	config.LoadConfig(dirPath, fileName)
 }

@@ -50,6 +50,9 @@ func NewCommand() *cobra.Command {
 }
 
 func persistentPreRunE(cmd *cobra.Command, args []string) error {
+	if err := utils.PersistPreRuns(cmd, args); err != nil {
+		return err
+	}
 	return utils.RequireCredentials(&settings.auth)
 }
 

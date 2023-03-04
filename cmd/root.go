@@ -23,6 +23,7 @@ import (
 
 	"github.com/Prki42/wgcli/cmd/submitCmd"
 	"github.com/Prki42/wgcli/config"
+	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -56,8 +57,10 @@ func createCommandTree(cmd *cobra.Command) {
 	cmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "prints debug info")
 	cmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "logs to stderr")
 	cmd.PersistentFlags().StringVarP(&logFile, "logFile", "l", "", "different log file")
+	cmd.PersistentFlags().Bool("no-color", false, "disable colored output")
 	viper.BindPFlag("auth.username", cmd.PersistentFlags().Lookup("username"))
 	viper.BindPFlag("auth.password", cmd.PersistentFlags().Lookup("password"))
+	viper.BindPFlag("noColor", cmd.PersistentFlags().Lookup("no-color"))
 }
 
 func persistentPreRun(cmd *cobra.Command, args []string) {
@@ -81,22 +84,23 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	}
 
 	// Config file passed as argument
-	if cfgFile == "" {
-		return
+	if cfgFile != "" {
+		confPath, err := filepath.Abs(cfgFile)
+		if err != nil {
+			log.Error().Err(err).Str("file", cfgFile).Msg("loading custom log file")
+			return
+		}
+		fileName := filepath.Base(confPath)
+		dirPath := filepath.Dir(confPath)
+		confPath, err = config.LoadConfig(dirPath, fileName)
+		if err != nil {
+			log.Error().Err(err).Str("file", confPath).Msg("laoding custom log file")
+			return
+		}
+		log.Info().Str("file", cfgFile).Msg("custom log file loaded")
 	}
-	confPath, err := filepath.Abs(cfgFile)
-	if err != nil {
-		log.Error().Err(err).Str("file", cfgFile).Msg("loading custom log file")
-		return
-	}
-	fileName := filepath.Base(confPath)
-	dirPath := filepath.Dir(confPath)
-	confPath, err = config.LoadConfig(dirPath, fileName)
-	if err != nil {
-		log.Error().Err(err).Str("file", confPath).Msg("laoding custom log file")
-		return
-	}
-	log.Info().Str("file", cfgFile).Msg("custom log file loaded")
+
+	color.NoColor = viper.GetBool("noColor")
 }
 
 func setupLogging() {

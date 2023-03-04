@@ -22,6 +22,7 @@ import (
 
 	"github.com/Prki42/wgcli/cmd/utils"
 	"github.com/Prki42/wgcli/webgrade"
+	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -121,9 +122,9 @@ func run(cmd *cobra.Command, args []string) {
 		if prev != length {
 			for i := prev; i != length; i++ {
 				if task.Tests[i].Output == 1 {
-					fmt.Printf("(+) Test %d passed\n", i+1)
+					color.Green("(+) Test %d passed\n", i+1)
 				} else {
-					fmt.Printf("(-) Test %d failed\n", i+1)
+					color.Red("(-) Test %d failed\n", i+1)
 				}
 			}
 			prev = length

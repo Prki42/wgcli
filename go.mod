@@ -3,6 +3,7 @@ module github.com/Prki42/wgcli
 go 1.19
 
 require (
+	github.com/fatih/color v1.14.1
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.14.0

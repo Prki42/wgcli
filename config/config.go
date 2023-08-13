@@ -36,7 +36,7 @@ func LoadGlobalConfig() (string, error) {
 	viper.SetConfigName("conf")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return "", err
+		return filepath.Join(confPath, "conf.yaml"), err
 	}
 
 	return filepath.Join(confPath, "conf.yaml"), nil

@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -78,7 +79,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	localConfPath, _ := filepath.Abs("./")
 	localConfPath, err = config.LoadConfig(localConfPath, ".wgcli.yaml")
 	if err != nil {
-		log.Error().Err(err).Str("file", localConfPath).Msg("loading local log file")
+		log.Error().Err(err).Str("file", localConfPath).Msg("loading local config file")
 	} else {
 		log.Info().Str("file", localConfPath).Msg("local config file loaded")
 	}
@@ -117,19 +118,33 @@ func setupLogging() {
 			fmt.Println("Error getting log file path:", err)
 		}
 	}
+
+	logDir := filepath.Dir(logFile)
+	if _, err := os.Stat(logDir); os.IsNotExist(err) {
+		err := os.Mkdir(logDir, 0666)
+		if err != nil {
+			fmt.Printf("Error creating directory '%s': %v\n", logDir, err)
+		}
+	}
+
+	var logWriter io.Writer
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil && verbose {
 		fmt.Println("Error opening log file:", err)
+		logWriter = io.Discard
+	} else {
+		logWriter = file
 	}
+
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 	if verbose {
-		multi := zerolog.MultiLevelWriter(file, zerolog.ConsoleWriter{Out: os.Stderr})
+		multi := zerolog.MultiLevelWriter(logWriter, zerolog.ConsoleWriter{Out: os.Stderr})
 		log.Logger = zerolog.New(multi).With().Timestamp().Logger()
 	} else {
-		log.Logger = zerolog.New(file).With().Timestamp().Logger()
+		log.Logger = zerolog.New(logWriter).With().Timestamp().Logger()
 	}
 }

@@ -43,7 +43,7 @@ func NewCommand() *cobra.Command {
 	}
 
 	submitCmd.Flags().StringP("fileName", "f", "", "filename to be sent")
-	viper.BindPFlag("problem.fileName", submitCmd.Flags().Lookup("problem.fileName"))
+	viper.BindPFlag("problem.fileName", submitCmd.Flags().Lookup("fileName"))
 
 	submitCmd.Flags().IntP("problemId", "p", -1, "problem ID")
 	viper.BindPFlag("problem.problemId", submitCmd.Flags().Lookup("problemId"))
